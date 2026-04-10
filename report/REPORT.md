@@ -245,7 +245,7 @@ tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_tr
 | Chunking strategy | Nhóm |  14/ 15 |
 | My approach | Cá nhân | 9/ 10 |
 | Similarity predictions | Cá nhân | 4/ 5 |
-| Results | Cá nhân | 8/ 10 |
-| Core implementation (tests) | Cá nhân | 27/ 30 |
+| Results | Cá nhân | 7/ 10 |
+| Core implementation (tests) | Cá nhân | 24/ 30 |
 | Demo | Nhóm | 5 / 5 |
-| **Tổng** | | **84/ 100** |
+| **Tổng** | | **80/ 100** |
