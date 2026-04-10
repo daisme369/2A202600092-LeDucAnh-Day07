@@ -195,8 +195,6 @@ tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_tr
 | 4 | Chương trình đổi xe xăng sang xe điện kết thúc 30/4/2026. | VinFast dừng chương trình chuyển đổi vào cuối tháng 4/2026. | high | 0.0128 | Sai |
 | 5 | VinFast hỗ trợ đổi xe máy điện cũ sang VF 3. | Chính sách chỉ hỗ trợ đổi từ xe xăng sang xe điện. | low | -0.1442 | Đúng |
 
-**Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn nghĩa?**
-> *Viết 2-3 câu:*
 
 ---
 
