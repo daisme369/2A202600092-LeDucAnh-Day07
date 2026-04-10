@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from .chunking import _dot
+from .chunking import _dot, compute_similarity
 from .embeddings import _mock_embed
 from .models import Document
 
@@ -51,7 +51,7 @@ class EmbeddingStore:
         query_embedding = self._embedding_fn(query)
         scored = []
         for record in records:
-            score = _dot(query_embedding, record["embedding"])
+            score = compute_similarity(query_embedding, record["embedding"])
             scored.append((score, record))
         scored.sort(key=lambda x: x[0], reverse=True)
         return [{**record, "score": score} for score, record in scored[:top_k]]
