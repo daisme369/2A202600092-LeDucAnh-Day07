@@ -64,7 +64,23 @@ class EmbeddingStore:
         For ChromaDB: use collection.add(ids=[...], documents=[...], embeddings=[...])
         For in-memory: append dicts to self._store
         """
-        # TODO: embed each doc and add to store
+        if not docs:
+            return
+
+        if hasattr(self._embedding_fn, "embed_many"):
+            texts = [doc.content for doc in docs]
+            embeddings = self._embedding_fn.embed_many(texts)
+            for doc, embedding in zip(docs, embeddings):
+                self._store.append(
+                    {
+                        "id": doc.id,
+                        "content": doc.content,
+                        "embedding": embedding,
+                        "metadata": doc.metadata,
+                    }
+                )
+            return
+
         for doc in docs:
             record = self._make_record(doc)
             self._store.append(record)

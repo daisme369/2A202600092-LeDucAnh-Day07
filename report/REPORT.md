@@ -50,18 +50,18 @@
 
 | # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
 |---|--------------|-------|----------|-----------------|
-| 1 |Thông báo Chính sách hỗ trợ Khách hàng chuyển đổi pin thuê sang pin mua các dòng xe ô tô điện VinFast Việt Nam| |2839| |
-| 2 |Thông báo Chính sách ưu đãi sạc pin cho các dòng xe ô tô điện VinFast tại Việt Nam | | 2944| |
-| 3 |Thông báo Chính sách bán hàng cho các dòng xe ô tô điện VinFast đã dừng sản xuất tại Việt Nam | | 3451| |
-| 4 |Thông báo Chính sách hỗ trợ Khách hàng chuyển đổi từ xe xăng sang xe điện VinFast tại Việt Nam | | 1923 | |
-| 5 |Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam | |5923 | |
-| 6 | Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam||5895 ||
+| 1 | battery_0326 | https://vinfastauto.com/vn_vi/hop-dong-va-chinh-sach | 2839 | {"doc_code": "POL_BATT_0326", "effective_date": "2026-03-01", "policy_type": "battery", "model": "All EVs", "is_active": true} |
+| 2 | charging_ev_0326 | https://vinfastauto.com/vn_vi/hop-dong-va-chinh-sach | 2944 | {"doc_code": "POL_CHAR_0326", "effective_date": "2026-03-01", "policy_type": "charging", "model": "All EVs", "is_active": true} |
+| 3 | discontinued_models_0326 | https://vinfastauto.com/vn_vi/hop-dong-va-chinh-sach | 3451 | {"doc_code": "POL_DISC_0326", "effective_date": "2026-03-01", "policy_type": "support", "model": "Fadil, Lux", "is_active": true} |
+| 4 | gas_to_ev_0326 | https://vinfastauto.com/vn_vi/hop-dong-va-chinh-sach | 1923 | {"doc_code": "PROMO_GAS2EV_0326", "effective_date": "2026-03-01", "policy_type": "promotion", "model": "All EVs", "is_active": true} |
+| 5 | sales_0326 | https://vinfastauto.com/vn_vi/hop-dong-va-chinh-sach | 5923 | {"doc_code": "REP_SALES_0326", "effective_date": "2026-03-01", "policy_type": "sales", "model": "All", "is_active": false} |
+| 6 | sales_0426 | https://vinfastauto.com/vn_vi/hop-dong-va-chinh-sach | 5895 | {"doc_code": "REP_SALES_0426", "effective_date": "2026-04-01", "policy_type": "sales", "model": "All", "is_active": true} |
 
 ### Metadata Schema
 
 | Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho retrieval? |
 |----------------|------|---------------|-------------------------------|
-|`doc_code` | string | `20260212_ThongbaoCShotroKHchuyendoipinthuesangpinmuaotoVinFastVN` | định danh để tránh lẫn lộn |
+|`doc_code` | string | `POL_BATT_0326` | định danh để tránh lẫn lộn |
 | `effective_date` | date | `2026-02-12` | ưu tiên các chính sách, quyết định mới |
 | `policy_type` | string | `sales` | lọc các chính sách theo loại |
 | `model` | string | `VF3` | filter |
@@ -84,13 +84,13 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 ### Strategy Của Tôi
 
-**Loại:** [FixedSizeChunker / SentenceChunker / RecursiveChunker / custom strategy]
+**Loại:** RecursiveChunker
 
 **Mô tả cách hoạt động:**
-> *Viết 3-4 câu: strategy chunk thế nào? Dựa trên dấu hiệu gì?*
+> RecursiveChunker hoạt động bằng cách chia nhỏ văn bản thành các đoạn nhỏ hơn dựa trên các ký tự phân tách. Nó bắt đầu với các ký tự phân tách cấp cao nhất, chẳng hạn như dòng trống, sau đó chuyển sang các ký tự phân tách cấp thấp hơn, chẳng hạn như dấu chấm câu, để chia nhỏ văn bản thành các đoạn nhỏ hơn. Nó cũng sử dụng các ký tự phân tách cấp thấp hơn, chẳng hạn như dấu chấm câu, để chia nhỏ văn bản thành các đoạn nhỏ hơn.
 
 **Tại sao tôi chọn strategy này cho domain nhóm?**
-> *Viết 2-3 câu: domain có pattern gì mà strategy khai thác?*
+> Vì bài toán của nhóm là về các chính sách, quyết định của VinFast, nên việc chunking theo theo strategy tách tuần tự của recursive sẽ giúp các chunks đảm bảo giữ được context.
 
 **Code snippet (nếu custom):**
 ```python
