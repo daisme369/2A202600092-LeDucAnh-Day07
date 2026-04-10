@@ -24,3 +24,4 @@ src_w_solution/
 /src/data/
 /run_compare.py
 /*.log
+/result.md

@@ -12,6 +12,7 @@ import io
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -27,6 +28,8 @@ ALLOWED_EXTENSIONS = {".md", ".txt"}
 CHUNK_SIZE = 500
 TOP_K = 3
 MIN_CHUNK_CHARS = 120
+LLM_MAX_RETRIES = 4
+LLM_RETRY_BACKOFF_SECONDS = 2
 
 # ---- ANSI colours for pretty CLI output ------------------------------
 C_RESET = "\033[0m"
@@ -123,18 +126,61 @@ def optimize_chunks(
 
 
 # ---- Gemini LLM helper ----------------------------------------------
-def create_gemini_llm(api_key: str, model: str = "gemini-2.0-flash"):
+def create_gemini_llm(api_key: str, model: str = "gemini-2.5-flash"):
     """Return a callable that sends a prompt to Gemini generative model."""
     from google import genai
 
     client = genai.Client(api_key=api_key)
+    fallback_raw = os.getenv("GEMINI_FALLBACK_MODELS", "gemini-2.5-flash").strip()
+    fallback_models = [m.strip() for m in fallback_raw.split(",") if m.strip()]
+
+    # Keep order while removing duplicates.
+    model_candidates: list[str] = []
+    for candidate in [model, *fallback_models]:
+        if candidate not in model_candidates:
+            model_candidates.append(candidate)
+
+    def _is_transient_error(err_text: str) -> bool:
+        transient_markers = (
+            "503",
+            "UNAVAILABLE",
+            "429",
+            "RESOURCE_EXHAUSTED",
+            "500",
+            "INTERNAL",
+            "DEADLINE_EXCEEDED",
+        )
+        return any(marker in err_text for marker in transient_markers)
 
     def llm_fn(prompt: str) -> str:
-        response = client.models.generate_content(
-            model=model,
-            contents=prompt,
-        )
-        return response.text
+        last_error: Exception | None = None
+
+        for candidate_model in model_candidates:
+            for attempt in range(LLM_MAX_RETRIES):
+                try:
+                    response = client.models.generate_content(
+                        model=candidate_model,
+                        contents=prompt,
+                    )
+                    return response.text or ""
+                except Exception as e:
+                    err_text = str(e)
+                    last_error = e
+                    if not _is_transient_error(err_text):
+                        raise
+
+                    is_last_try = attempt == LLM_MAX_RETRIES - 1
+                    if not is_last_try:
+                        wait = LLM_RETRY_BACKOFF_SECONDS * (2 ** attempt)
+                        print(
+                            f"\r  [LLM RETRY] {candidate_model} failed ({attempt + 1}/{LLM_MAX_RETRIES}), retry in {wait}s...",
+                            end="",
+                            flush=True,
+                        )
+                        time.sleep(wait)
+            print(f"\r  [LLM FALLBACK] switching model from {candidate_model}...", end="", flush=True)
+
+        raise RuntimeError(f"All LLM models failed. Last error: {last_error}")
 
     return llm_fn
 
@@ -260,7 +306,9 @@ def main() -> int:
     print(f"  [OK] Embedding backend: {C_BOLD}{embedder._backend_name}{C_RESET}")
 
     # --- Create Gemini LLM ---
-    llm_fn = create_gemini_llm(api_key=api_key)
+    llm_model = os.getenv("GEMINI_LLM_MODEL", "gemini-2.5-flash").strip()
+    print(f"{C_DIM}  Initializing Gemini LLM: {llm_model}{C_RESET}")
+    llm_fn = create_gemini_llm(api_key=api_key, model=llm_model)
 
     # --- Interactive loop ---
     print(f"\n{C_CYAN}{'-' * 60}{C_RESET}")
