@@ -1,8 +1,8 @@
 # Báo Cáo Lab 7: Embedding & Vector Store
 
-**Họ tên:** [Tên sinh viên]
-**Nhóm:** [Tên nhóm]
-**Ngày:** [Ngày nộp]
+**Họ tên:** Lê Đức Anh
+**Nhóm:** C401-B4
+**Ngày:** 11/04/2026
 
 ---
 
@@ -11,29 +11,29 @@
 ### Cosine Similarity (Ex 1.1)
 
 **High cosine similarity nghĩa là gì?**
-> *Viết 1-2 câu:*
+>Hai đoạn chunks có cosine similarity cao có nghĩa là 2 đoạn văn có nội dung về mặt ngữ nghĩa tương tự nhau (không mang tính từng trùng lặp từ ngữ).
 
 **Ví dụ HIGH similarity:**
-- Sentence A:
-- Sentence B:
-- Tại sao tương đồng:
+- Sentence A: "Nhiệt độ của Hà Nội của hôm nay là 39 độ C"
+- Sentence B: "Hà Nội hôm nay nóng 39 độ C"
+- Tại sao tương đồng: Cả 2 câu đều nói về nhiệt độ của Hà Nội vào ngày hôm nay và đều có cùng ý nghĩa.
 
 **Ví dụ LOW similarity:**
-- Sentence A:
-- Sentence B:
-- Tại sao khác:
+- Sentence A: "Nhiệt độ của Hà Nội của hôm nay là 39 độ C"
+- Sentence B: "Hôm nay trời mưa to"
+- Tại sao khác: Cả 2 câu đều nói về thời tiết nhưng không có cùng ý nghĩa.
 
 **Tại sao cosine similarity được ưu tiên hơn Euclidean distance cho text embeddings?**
-> *Viết 1-2 câu:*
+> Euclidean distance bị ảnh hưởng nặng bởi độ dài do bản chất là khoảng cách. Trong khi cosine similarity chỉ quan tâm đến góc giữa hai vector, không quan tâm đến độ dài của chúng. Điều này làm cho cosine similarity trở nên phù hợp hơn với việc so sánh các văn bản có độ dài khác nhau.
 
 ### Chunking Math (Ex 1.2)
 
 **Document 10,000 ký tự, chunk_size=500, overlap=50. Bao nhiêu chunks?**
-> *Trình bày phép tính:*
-> *Đáp án:*
+> *Trình bày phép tính:* Số chunks = (10000 - 50) / 500 - 50 = 22.111
+> *Đáp án:* 23 chunks
 
 **Nếu overlap tăng lên 100, chunk count thay đổi thế nào? Tại sao muốn overlap nhiều hơn?**
-> *Viết 1-2 câu:*
+> Nếu overlap tăng lên 100, số chunks sẽ giảm xuống còn 21. Lý do muốn tăng overlap là để tăng khả năng retrieval, vì khi overlap tăng, các chunks sẽ có nhiều thông tin chung hơn, giúp tăng khả năng tìm thấy thông tin liên quan.
 
 ---
 
@@ -41,27 +41,32 @@
 
 ### Domain & Lý Do Chọn
 
-**Domain:** [ví dụ: Customer support FAQ, Vietnamese law, cooking recipes, ...]
+**Domain:** Customer Support FAQ
 
 **Tại sao nhóm chọn domain này?**
-> *Viết 2-3 câu:*
+> Nhóm chọn domain này vì đây là một domain phổ biến và có nhiều tài liệu, giúp cho việc thực hành các kỹ năng chunking và retrieval trở nên dễ dàng hơn. Ngoài ra, domain này cũng có nhiều câu hỏi và câu trả lời, giúp cho việc thực hành các kỹ năng chunking và retrieval trở nên dễ dàng hơn.
 
 ### Data Inventory
 
 | # | Tên tài liệu | Nguồn | Số ký tự | Metadata đã gán |
 |---|--------------|-------|----------|-----------------|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+| 1 |Thông báo Chính sách hỗ trợ Khách hàng chuyển đổi pin thuê sang pin mua các dòng xe ô tô điện VinFast Việt Nam| |2839| |
+| 2 |Thông báo Chính sách ưu đãi sạc pin cho các dòng xe ô tô điện VinFast tại Việt Nam | | 2944| |
+| 3 |Thông báo Chính sách bán hàng cho các dòng xe ô tô điện VinFast đã dừng sản xuất tại Việt Nam | | 3451| |
+| 4 |Thông báo Chính sách hỗ trợ Khách hàng chuyển đổi từ xe xăng sang xe điện VinFast tại Việt Nam | | 1923 | |
+| 5 |Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam | |5923 | |
+| 6 | Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam||5895 ||
 
 ### Metadata Schema
 
 | Trường metadata | Kiểu | Ví dụ giá trị | Tại sao hữu ích cho retrieval? |
 |----------------|------|---------------|-------------------------------|
-| | | | |
-| | | | |
+|`doc_code` | string | `20260212_ThongbaoCShotroKHchuyendoipinthuesangpinmuaotoVinFastVN` | định danh để tránh lẫn lộn |
+| `effective_date` | date | `2026-02-12` | ưu tiên các chính sách, quyết định mới |
+| `policy_type` | string | `sales` | lọc các chính sách theo loại |
+| `model` | string | `VF3` | filter |
+| `is_active`| boolean | `true` | đánh dấu chính sách còn hiệu lực |
+
 
 ---
 
@@ -73,9 +78,9 @@ Chạy `ChunkingStrategyComparator().compare()` trên 2-3 tài liệu:
 
 | Tài liệu | Strategy | Chunk Count | Avg Length | Preserves Context? |
 |-----------|----------|-------------|------------|-------------------|
-| | FixedSizeChunker (`fixed_size`) | | | |
-| | SentenceChunker (`by_sentences`) | | | |
-| | RecursiveChunker (`recursive`) | | | |
+|Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam | FixedSizeChunker (`fixed_size`) | 39| 199.9 | Low |
+|Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam | SentenceChunker (`by_sentences`) | 39 | 149.1 | Medium |
+|Thông báo Chính sách thúc đẩy bán hàng Ô tô điện VinFast tại Việt Nam | RecursiveChunker (`recursive`) | 233 |24.1 | Low |
 
 ### Strategy Của Tôi
 
@@ -143,7 +148,7 @@ Giải thích cách tiếp cận của bạn khi implement các phần chính tr
 # Paste output of: pytest tests/ -v
 ```
 
-**Số tests pass:** __ / __
+**Số tests pass:** 42 / 42
 
 ---
 

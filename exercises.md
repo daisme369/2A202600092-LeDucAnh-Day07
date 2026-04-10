@@ -10,8 +10,6 @@
 No math required — explain conceptually:
 
 - What does it mean for two text chunks to have high cosine similarity?
-    - Hai đoạn chunks có cosine similarity cao có nghĩa là 2 đoạn văn có nội dung về mặt ngữ nghĩa tương tự nhau (không mang tính từng trùng lặp từ ngữ).
-
 - Give a concrete example of two sentences that would have HIGH similarity and two that would have LOW similarity.
     - Ví dụ high cosine similarity: 
         "Nhiệt độ của Hà Nội của hôm nay là 39 độ C"
@@ -27,10 +25,7 @@ No math required — explain conceptually:
 ### Exercise 1.2 — Chunking Math
 
 - A document is 10,000 characters. You chunk it with `chunk_size=500`, `overlap=50`. How many chunks do you expect? 
-    - số chunks = 23 
 - If overlap is increased to 100, how does this change the chunk count? Why would you want more overlap?
-    - Nếu overlap tăng lên 100, số chunks sẽ giảm xuống còn 21. 
-    - Lý do muốn tăng overlap là để tăng khả năng retrieval, vì khi overlap tăng, các chunks sẽ có nhiều thông tin chung hơn, giúp tăng khả năng tìm thấy thông tin liên quan.
 
 ---
 
